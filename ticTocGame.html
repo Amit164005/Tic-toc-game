@@ -1,0 +1,259 @@
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="styles.css">   
+    
+        <style>
+          * {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .background {
+        background-color: rgb(131, 71, 80);
+        height: 100vh;
+        padding-top: 1px;
+    }
+    
+    .title {
+        color: white;
+        text-align: center;
+        font-size: 40px;
+        margin-top: 5%;
+    }
+    
+    .display {
+        color: white;
+        font-size: 25px;
+        text-align: center;
+        margin-top: 10px;
+        margin-bottom: 1em;
+    }
+    
+    
+    .hide {
+        display: none;
+    }
+    
+    .container {
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 33% 33% 33%;
+        grid-template-rows: 33% 33% 33%;
+        max-width: 300px;
+    
+    }
+    
+    .tile {
+        border: 1px solid white;
+        min-width: 100px;
+        min-height: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 50px;
+        cursor: pointer;
+    }
+    
+    .playerX {
+        color: #f5e772;
+    }
+    
+    .playerO {
+        color: #17dd9b;
+    }
+    
+    .controls {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        margin-top: 1em;
+    }
+    
+    .controls button {
+        color: white;
+        padding: 8px;
+        border-radius: 8px;
+        border: none;
+        font-size: 20px;
+        margin-left: 1em;
+        cursor: pointer;
+    }
+    
+    #reset {
+        background-color: #176c3c;
+    }
+        </style>
+    
+        <title>Tic-Tac-Toe</title>
+    </head>
+    <body>
+        <main class="background">
+            <section class="title">
+                <h1>Tic Tac Toe</h1>
+            </section>
+            <section class="display">
+                Player <span class="display-player playerX">X</span>'s turn
+            </section>
+            <section class="container">
+                <div class="tile"></div>
+                <div class="tile"></div>
+                <div class="tile"></div>
+                <div class="tile"></div>
+                <div class="tile"></div>
+                <div class="tile"></div>
+                <div class="tile"></div>
+                <div class="tile"></div>
+                <div class="tile"></div>
+            </section>
+            <section class="display announcer hide"></section>
+            <section class="controls">
+                <button id="reset">Reset</button>
+            </section>
+        </main>
+        <script>
+         window.addEventListener('DOMContentLoaded', () => {
+    
+        tiles.forEach((tile, index) => {
+            tile.addEventListener('click', () => userAction(tile, index));
+        });
+        resetButton.addEventListener('click', resetBoard);
+    
+    });
+    
+    
+    
+    
+    let board = ['', '', '', '', '', '', '', '', ''];
+    let currentPlayer = 'X';
+    let isGameActive = true;
+    
+    let tiles = Array.from(document.querySelectorAll('.tile'));
+    let playerDisplay = document.querySelector('.display-player');
+    let resetButton = document.querySelector('#reset');
+    let announcer = document.querySelector('.announcer');
+    
+    
+    
+    let PLAYERX_WON = 'PLAYERX_WON';
+    let PLAYERO_WON = 'PLAYERO_WON';
+    let TIE = 'TIE';
+     /* Board Indices..
+            0   1   2
+            3   4   5
+            6   7   8
+        */
+       
+    let winningConditions = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6]
+    ];
+    
+    function userAction(tile, index) {
+        if (isValidAction(tile) && isGameActive) {
+            tile.innerText = currentPlayer;
+            tile.classList.add(`player${currentPlayer}`);
+            updateBoard(index);
+            handleResultValidation();
+            changePlayer();
+        }
+    }
+    
+    
+    function updateBoard(index) {
+        board[index] = currentPlayer;
+    }
+    
+    
+    function handleResultValidation() {
+        let roundWon = false;
+        for (let i = 0; i <= 7; i++) {
+            const winCondition = winningConditions[i];
+            const a = board[winCondition[0]];
+            const b = board[winCondition[1]];
+            const c = board[winCondition[2]];
+            if (a === '' || b === '' || c === '') {
+                continue;
+            }
+            if (a === b && b === c) {
+                roundWon = true;
+                break;
+            }
+        }
+    
+        if (roundWon) {
+            announce(currentPlayer === 'X' ? PLAYERX_WON : PLAYERO_WON);
+            isGameActive = false;
+            return;
+        }
+    
+        if (!board.includes(''))
+            announce(TIE);
+    }
+    
+    
+    function changePlayer() {
+        playerDisplay.classList.remove(`player${currentPlayer}`);
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        playerDisplay.innerText = currentPlayer;
+        playerDisplay.classList.add(`player${currentPlayer}`);
+    }
+    
+    
+    function isValidAction(tile) {
+        if (tile.innerText === 'X' || tile.innerText === 'O') {
+            return false;
+        }
+    
+        return true;
+    };
+    
+    
+    function announce(type) {
+        switch (type) {
+            case PLAYERO_WON:
+                announcer.innerHTML = 'Player <span class="playerO">O</span> Won!!';
+                break;
+            case PLAYERX_WON:
+                announcer.innerHTML = 'Player <span class="playerX">X</span> Won!!';
+                break;
+            case TIE:
+                announcer.innerText = 'Tie :)';
+        }
+        announcer.classList.remove('hide');
+    };
+    
+    
+    function resetBoard () {
+        board = ['', '', '', '', '', '', '', '', ''];
+        isGameActive = true;
+        announcer.classList.add('hide');
+    
+        if (currentPlayer === 'O') {
+            changePlayer();
+        }
+    
+        tiles.forEach(tile => {
+            tile.innerText = '';
+            tile.classList.remove('playerX');
+            tile.classList.remove('playerO');
+        });
+       
+    }
+    
+    
+        </script>
+    </body>
+    </html>
+    
